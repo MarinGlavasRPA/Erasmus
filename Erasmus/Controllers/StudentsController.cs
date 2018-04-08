@@ -46,10 +46,18 @@ namespace Erasmus.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,AkademskaGodina,Rok,StudijskiProgram,PodrucjeStudija,PunoImeStudenta,DatumRodenja,Spol,MjestoRodenja,ZemljaRodenja,Nacionalnost,OIB,SveucilisteInstitucija,SkolaOdjel,GradStudija,ZemljaStudija,Datum")] Student student)
+        public ActionResult Create([Bind(Include = "ID,AkademskaGodina,Rok,StudijskiProgram,PodrucjeStudija,PunoImeStudenta,DatumRodenja,Spol,MjestoRodenja,ZemljaRodenja,Nacionalnost,OIB,SveucilisteInstitucija,SkolaOdjel,GradStudija,ZemljaStudija,Datum")] Student student, HttpPostedFileBase image)
         {
             if (ModelState.IsValid)
             {
+                // provjera je li slika učitanja, te ako je - treba procitati byteove 
+                if (image != null)
+                {
+                    student.MimeTypeSlika = image.ContentType;
+                    student.SlikaDatoteka = new byte[image.ContentLength];
+                    image.InputStream.Read(student.SlikaDatoteka, 0, image.ContentLength);
+                }
+
                 db.Students.Add(student);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -79,10 +87,17 @@ namespace Erasmus.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,AkademskaGodina,Rok,StudijskiProgram,PodrucjeStudija,PunoImeStudenta,DatumRodenja,Spol,MjestoRodenja,ZemljaRodenja,Nacionalnost,OIB,SveucilisteInstitucija,SkolaOdjel,GradStudija,ZemljaStudija,Datum")] Student student)
+        public ActionResult Edit([Bind(Include = "ID,AkademskaGodina,Rok,StudijskiProgram,PodrucjeStudija,PunoImeStudenta,DatumRodenja,Spol,MjestoRodenja,ZemljaRodenja,Nacionalnost,OIB,SveucilisteInstitucija,SkolaOdjel,GradStudija,ZemljaStudija,Datum")] Student student, HttpPostedFileBase image)
         {
             if (ModelState.IsValid)
             {
+                if (image != null)
+                {
+                    student.MimeTypeSlika = image.ContentType;
+                    student.SlikaDatoteka = new byte[image.ContentLength];
+                    image.InputStream.Read(student.SlikaDatoteka, 0, image.ContentLength);
+                }
+
                 db.Entry(student).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -114,6 +129,20 @@ namespace Erasmus.Controllers
             db.Students.Remove(student);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        public FileContentResult DohvatiSliku(int slikaId)
+        {
+            // Dohvati sliku gdje odgovara Id s Idem u bazi / Get the right photo
+            Student slika = db.Students.FirstOrDefault(p => p.ID == slikaId);
+            if (slika != null)
+            {
+                return File(slika.SlikaDatoteka, slika.MimeTypeSlika);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected override void Dispose(bool disposing)

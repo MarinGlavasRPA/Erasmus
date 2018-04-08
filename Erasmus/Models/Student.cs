@@ -42,6 +42,10 @@ namespace Erasmus.Models
         public Country ZemljaStudija { get; set; }
         [DataType(DataType.Date)]
         public DateTime Datum { get; set; }
+        [Display(Name = "Slika")]
+        public byte[] SlikaDatoteka { get; set; }
+
+        public string MimeTypeSlika { get; set; }
 
         public virtual ICollection<Kolegij> Kolegijs { get; set; }
     }
