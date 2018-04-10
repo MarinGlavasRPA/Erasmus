@@ -39,7 +39,7 @@ namespace Erasmus.Controllers
         // GET: Kolegijs/Create
         public ActionResult Create()
         {
-            ViewBag.StudentID = new SelectList(db.Students, "ID", "PunoImeStudenta");
+            ViewBag.StudentID = new SelectList(new StudentDbContext().Students, "ID", "PunoImeStudenta");
             return View();
         }
 
@@ -57,7 +57,7 @@ namespace Erasmus.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.StudentID = new SelectList(db.Students, "ID", "PunoImeStudenta", kolegij.StudentID);
+            ViewBag.StudentID = new SelectList(new StudentDbContext().Students, "ID", "PunoImeStudenta", kolegij.StudentID);
             return View(kolegij);
         }
 
